@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Mars Colony — Διαδραστικό Πρωτότυπο (Εργασία 1)</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Top Header & Navigation -->
+    <header class="topbar" role="banner">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8" />
+            <circle cx="12" cy="12" r="3.2" fill="currentColor" />
+            <path d="M5.5 16.5C8 13.5 16 13.5 18.5 16.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+          </svg>
+        </div>
+        <div>
+          <h1>Smart Mars Colony</h1>
+          <p class="subtitle">Πίνακας Ελέγχου Αποικίας · Πρωτότυπο Εργασίας 1</p>
+        </div>
+      </div>
+
+      <nav class="primary-nav" aria-label="Κύριες λειτουργίες συστήματος">
+        <button
+          type="button"
+          class="nav-tab is-active"
+          id="tab-temp"
+          role="tab"
+          aria-selected="true"
+          aria-controls="panel-temp"
+        >
+          <span class="nav-dot" aria-hidden="true"></span>
+          Ρύθμιση Θερμοκρασίας
+        </button>
+        <button
+          type="button"
+          class="nav-tab"
+          id="tab-irrigation"
+          role="tab"
+          aria-selected="false"
+          aria-controls="panel-irrigation"
+        >
+          <span class="nav-dot" aria-hidden="true"></span>
+          Προγραμματισμός Άρδευσης
+        </button>
+      </nav>
+
+      <div class="role-pill" aria-label="Ενεργός ρόλος χρήστη">
+        <span class="role-label">Ρόλος</span>
+        <strong id="active-role-name">Υπεύθυνος Υποστήριξης Ζωής</strong>
+      </div>
+    </header>
+
+    <!-- Main Content: Function A (Temperature Control) -->
+    <main id="panel-temp" class="workspace" role="tabpanel" aria-labelledby="tab-temp">
+      <!-- Global Status / Alert Banner -->
+      <section id="alert-banner" class="alert-banner is-hidden" role="alert" aria-live="assertive">
+        <div class="alert-icon" id="alert-icon" aria-hidden="true">!</div>
+        <div class="alert-body">
+          <div class="alert-header">
+            <span class="severity-badge" id="alert-severity">ΣΦΑΛΜΑ</span>
+            <h2 id="alert-title">Τίτλος ειδοποίησης</h2>
+          </div>
+          <p id="alert-cause" class="alert-line"></p>
+          <p id="alert-impact" class="alert-line"></p>
+          <p id="alert-action" class="alert-action"></p>
+        </div>
+        <button type="button" class="btn btn-ghost btn-sm" id="alert-recovery-btn" hidden>Ενέργεια</button>
+      </section>
+
+      <!-- Two-Column Layout -->
+      <div class="grid-two-col">
+        <!-- LEFT COLUMN: Room Selection & Sensor Readings -->
+        <section class="column-left" aria-label="Επιλογή χώρου και ενδείξεις αισθητήρων">
+          <!-- Room Selector Card -->
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <span class="eyebrow">Βήμα 1 · Επιλογή Χώρου</span>
+                <h2>Χώροι Εγκατάστασης</h2>
+              </div>
+              <span class="chip" id="selected-room-code">HAB-01</span>
+            </div>
+
+            <div class="room-list" id="room-list" role="radiogroup" aria-label="Επιλογή χώρου κατοίκησης ή εγκατάστασης">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- Sensor Telemetry Cards -->
+          <div class="sensor-grid">
+            <!-- Internal Sensor -->
+            <article class="card sensor-card" id="internal-sensor-card" aria-label="Εσωτερικός αισθητήρας θερμοκρασίας">
+              <div class="sensor-top">
+                <span class="eyebrow">Εσωτερική (Μετρούμενη)</span>
+                <span class="quality-badge quality-ok" id="in-quality">
+                  <span class="q-symbol" aria-hidden="true">●</span> Αξιόπιστη
+                </span>
+              </div>
+
+              <div class="metric-row">
+                <div class="metric-main" id="in-temp-c">20.0 °C</div>
+                <div class="metric-sub" id="in-temp-k">293.15 K</div>
+              </div>
+
+              <div class="trend-row">
+                <span class="trend-pill" id="in-trend">→ Σταθερή</span>
+                <span class="safe-range-text" id="in-safe-range">Ασφαλές εύρος: 16.0–26.0 °C</span>
+              </div>
+
+              <dl class="meta-list">
+                <div>
+                  <dt>Πηγή</dt>
+                  <dd id="in-source">INT-TH-01</dd>
+                </div>
+                <div>
+                  <dt>Ώρα μέτρησης</dt>
+                  <dd id="in-timestamp">Sol 142 · 14:20</dd>
+                </div>
+                <div>
+                  <dt>Κατάσταση θέρμανσης</dt>
+                  <dd id="in-heater-state">Ενεργή · Κανονική</dd>
+                </div>
+              </dl>
+            </article>
+
+            <!-- External Sensor -->
+            <article class="card sensor-card" id="external-sensor-card" aria-label="Εξωτερικός αισθητήρας θερμοκρασίας">
+              <div class="sensor-top">
+                <span class="eyebrow">Εξωτερική (Άρης)</span>
+                <span class="quality-badge quality-ok" id="out-quality">
+                  <span class="q-symbol" aria-hidden="true">●</span> Αξιόπιστη
+                </span>
+              </div>
+
+              <div class="metric-row">
+                <div class="metric-main" id="out-temp-c">-60.0 °C</div>
+                <div class="metric-sub" id="out-temp-k">213.15 K</div>
+              </div>
+
+              <div class="trend-row">
+                <span class="trend-pill" id="out-trend">↘ Ήπια πτώση (-0.4 °C/h)</span>
+              </div>
+
+              <dl class="meta-list">
+                <div>
+                  <dt>Πηγή</dt>
+                  <dd id="out-source">EXT-MET-A1</dd>
+                </div>
+                <div>
+                  <dt>Ώρα μέτρησης</dt>
+                  <dd id="out-timestamp">Sol 142 · 14:20</dd>
+                </div>
+                <div>
+                  <dt>Διαφορά ΔT</dt>
+                  <dd id="delta-t-display">80.0 K (80.0 °C)</dd>
+                </div>
+              </dl>
+            </article>
+          </div>
+        </section>
+
+        <!-- RIGHT COLUMN: Circular Temperature Control & Energy Impact Preview -->
+        <section class="column-right" aria-label="Ρύθμιση επιθυμητής θερμοκρασίας και προεπισκόπηση επίπτωσης">
+          <!-- Circular Dial Card -->
+          <div class="card dial-card">
+            <div class="card-head">
+              <div>
+                <span class="eyebrow">Βήμα 2 · Επιθυμητή Ρύθμιση</span>
+                <h2 id="dial-room-title">Κεντρικός Θόλος</h2>
+              </div>
+              <span class="status-tag" id="target-status-tag">Εντός ασφαλών ορίων</span>
+            </div>
+
+            <!-- Circular Slider SVG -->
+            <div class="dial-stage">
+              <div
+                class="dial-container"
+                id="dial-control"
+                role="slider"
+                tabindex="0"
+                aria-label="Κυκλικός ρυθμιστής επιθυμητής θερμοκρασίας"
+                aria-valuemin="8"
+                aria-valuemax="34"
+                aria-valuenow="20"
+                aria-valuetext="20.0 βαθμοί Κελσίου, 293.15 Κέλβιν"
+              >
+                <svg class="dial-svg" viewBox="0 0 260 260" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="purpleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#8b5cf6" />
+                      <stop offset="100%" stop-color="#d946ef" />
+                    </linearGradient>
+                    <linearGradient id="dangerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#f97316" />
+                      <stop offset="100%" stop-color="#ef4444" />
+                    </linearGradient>
+                    <filter id="knobGlow" x="-40%" y="-40%" width="180%" height="180%">
+                      <feGaussianBlur stdDeviation="3.5" result="blur" />
+                      <feMerge>
+                        <feMergeNode in="blur" />
+                        <feMergeNode in="SourceGraphic" />
+                      </feMerge>
+                    </filter>
+                  </defs>
+
+                  <!-- Full Track Arc (270 deg) -->
+                  <path id="dial-track" class="dial-track" fill="none" stroke-linecap="round" />
+
+                  <!-- Safe Range Arc -->
+                  <path id="dial-safe-arc" class="dial-safe-arc" fill="none" stroke-linecap="round" />
+
+                  <!-- Active Fill Arc -->
+                  <path id="dial-active-arc" class="dial-active-arc" fill="none" stroke-linecap="round" />
+
+                  <!-- Current Measured Temperature Marker -->
+                  <circle id="dial-measured-marker" class="dial-measured-marker" r="4.5" />
+
+                  <!-- Interactive Thumb Knob -->
+                  <g id="dial-thumb-group" filter="url(#knobGlow)">
+                    <circle id="dial-thumb-outer" class="dial-thumb-outer" r="13" />
+                    <circle id="dial-thumb-inner" class="dial-thumb-inner" r="5" />
+                  </g>
+                </svg>
+
+                <!-- Center Readout (Both °C and K) -->
+                <div class="dial-center">
+                  <span class="dial-mode-label" id="dial-mode-label">Επιθυμητή</span>
+                  <div class="dial-temp-c" id="dial-temp-c">20.0 °C</div>
+                  <div class="dial-temp-k" id="dial-temp-k">293.15 K</div>
+                  <div class="dial-delta" id="dial-delta">Ίδια με μετρούμενη</div>
+                </div>
+              </div>
+
+              <div class="dial-legend" aria-hidden="true">
+                <span>↺ Αριστερά: Μείωση</span>
+                <span class="legend-dot-wrap"><i class="dot-measured"></i> Μετρούμενη</span>
+                <span class="legend-dot-wrap"><i class="dot-safe"></i> Ασφαλής ζώνη</span>
+                <span>↻ Δεξιά: Αύξηση</span>
+              </div>
+            </div>
+
+            <!-- Fine / Keyboard / Exact Controls -->
+            <div class="dial-controls-bar">
+              <button type="button" class="btn btn-icon" id="btn-dec" aria-label="Μείωση θερμοκρασίας κατά 0.5 βαθμούς Κελσίου">−</button>
+
+              <div class="exact-input-wrap">
+                <label for="temp-numeric-input">Ακριβής τιμή (°C)</label>
+                <div class="input-unit-box">
+                  <input
+                    type="number"
+                    id="temp-numeric-input"
+                    step="0.5"
+                    min="-10"
+                    max="50"
+                    value="20.0"
+                    aria-describedby="input-hint"
+                  />
+                  <span>°C</span>
+                </div>
+              </div>
+
+              <button type="button" class="btn btn-icon" id="btn-inc" aria-label="Αύξηση θερμοκρασίας κατά 0.5 βαθμούς Κελσίου">+</button>
+            </div>
+            <p id="input-hint" class="input-hint">Χειρισμός με σύρσιμο στον κύκλο, βελάκια πληκτρολογίου (← / →) ή απευθείας πληκτρολόγηση.</p>
+          </div>
+
+          <!-- Live Energy Impact Preview Card -->
+          <div class="card impact-card" aria-label="Προεπισκόπηση ενεργειακής επίπτωσης">
+            <div class="card-head">
+              <div>
+                <span class="eyebrow">Βήμα 3 · Προεπισκόπηση Επίπτωσης (Εκτιμώμενη)</span>
+                <h3>Απαίτηση Θερμικής Ισχύος</h3>
+              </div>
+              <span class="delta-badge neutral" id="power-delta-badge">0 W (0.0%)</span>
+            </div>
+
+            <div class="impact-metrics">
+              <div class="impact-box">
+                <span class="impact-label">Τρέχουσα απώλεια Q̇</span>
+                <strong class="impact-value" id="current-power-val">8 000 W</strong>
+                <span class="impact-note">Μετρούμενη κατάσταση</span>
+              </div>
+              <div class="impact-arrow" aria-hidden="true">→</div>
+              <div class="impact-box is-highlight">
+                <span class="impact-label">Νέα εκτιμώμενη Q̇</span>
+                <strong class="impact-value" id="estimated-power-val">8 000 W</strong>
+                <span class="impact-note" id="autonomy-impact-note">Καμία μεταβολή αυτονομίας</span>
+              </div>
+            </div>
+
+            <!-- Progressive Disclosure: Physical Model & Assumptions -->
+            <details class="model-details">
+              <summary>Μαθηματικό μοντέλο &amp; παραδοχές υπολογισμού</summary>
+              <div class="model-content">
+                <p class="formula-line"><strong>Εξίσωση:</strong> <code>Q̇ = U · A · (Tεντ − Tεκτ)</code></p>
+                <p id="model-params-line" class="model-params"></p>
+                <p id="model-calc-line" class="model-calc"></p>
+                <p class="model-assumptions">
+                  <strong>Παραδοχές:</strong> Σταθερός συντελεστής θερμοπερατότητας U, χωρίς ηλιακά ή εσωτερικά θερμικά κέρδη.
+                  Οι τιμές στρογγυλοποιούνται στο πλησιέστερο 1 W (θερμοκρασίες σε 0.1 °C / 0.01 K) χωρίς παραπλανητική ακρίβεια.
+                </p>
+              </div>
+            </details>
+
+            <!-- Action Buttons -->
+            <div class="action-row">
+              <button type="button" class="btn btn-ghost" id="btn-reset" disabled>Επαναφορά</button>
+              <button type="button" class="btn btn-primary" id="btn-apply" disabled>Επιβεβαίωση &amp; Εφαρμογή</button>
+            </div>
+          </div>
+
+          <!-- Execution Feedback & Progress Panel -->
+          <section class="card progress-card is-hidden" id="execution-panel" aria-live="polite">
+            <div class="progress-head">
+              <div>
+                <span class="eyebrow" id="exec-stage-label">Κατάσταση Εντολής</span>
+                <h3 id="exec-title">Αποστολή εντολής...</h3>
+              </div>
+              <span class="exec-percent" id="exec-percent">0%</span>
+            </div>
+
+            <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="exec-progressbar">
+              <div class="progress-fill" id="exec-progress-fill" style="width: 0%"></div>
+            </div>
+
+            <div class="exec-steps">
+              <span class="step-pill" id="step-accepted">1. Αποδοχή</span>
+              <span class="step-pill" id="step-running">2. Πρόοδος</span>
+              <span class="step-pill" id="step-done">3. Ολοκλήρωση</span>
+            </div>
+
+            <p class="exec-detail" id="exec-detail"></p>
+
+            <div class="exec-actions">
+              <button type="button" class="btn btn-ghost btn-sm" id="btn-undo-exec" hidden>Αναίρεση αλλαγής</button>
+              <button type="button" class="btn btn-ghost btn-sm" id="btn-dismiss-exec" hidden>Κλείσιμο</button>
+            </div>
+          </section>
+        </section>
+      </div>
+
+      <!-- Discreet Fault Simulation Bar for Testing / Presentation -->
+      <footer class="sim-bar" aria-label="Εργαλεία προσομοίωσης σφαλμάτων για επίδειξη">
+        <span class="sim-title">Προσομοίωση Σφαλμάτων (Δοκιμή Σεναρίων):</span>
+        <div class="sim-controls">
+          <label class="toggle-chip">
+            <input type="checkbox" id="sim-sensor-loss" />
+            <span>Απώλεια εσωτερικού αισθητήρα</span>
+          </label>
+          <label class="toggle-chip">
+            <input type="checkbox" id="sim-stale-out" />
+            <span>Παρωχημένη εξωτερική μέτρηση</span>
+          </label>
+          <button type="button" class="btn btn-ghost btn-xs" id="sim-out-of-bounds">Δοκιμή εκτός ορίων (32 °C)</button>
+        </div>
+      </footer>
+    </main>
+
+    <!-- Main Content: Function B (Greenhouse Irrigation Scheduling) -->
+    <main id="panel-irrigation" class="workspace is-hidden" role="tabpanel" aria-labelledby="tab-irrigation">
+      <!-- Irrigation Alert Banner -->
+      <section id="irr-alert-banner" class="alert-banner is-hidden" role="alert" aria-live="assertive">
+        <div class="alert-icon" id="irr-alert-icon" aria-hidden="true">!</div>
+        <div class="alert-body">
+          <div class="alert-header">
+            <span class="severity-badge" id="irr-alert-severity">ΣΦΑΛΜΑ</span>
+            <h2 id="irr-alert-title">Τίτλος ειδοποίησης</h2>
+          </div>
+          <p id="irr-alert-cause" class="alert-line"></p>
+          <p id="irr-alert-impact" class="alert-line"></p>
+          <p id="irr-alert-action" class="alert-action"></p>
+        </div>
+        <button type="button" class="btn btn-ghost btn-sm" id="irr-alert-recovery-btn" hidden>Ενέργεια</button>
+      </section>
+
+      <div class="grid-two-col">
+        <!-- LEFT COLUMN: Greenhouse Zones & Visual Water Tank -->
+        <section class="column-left" aria-label="Επιλογή ζώνης θερμοκηπίου και απόθεμα νερού">
+          <!-- Zone Selector -->
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <span class="eyebrow">Βήμα 1 · Επιλογή Ζώνης</span>
+                <h2>Ζώνες Θερμοκηπίου</h2>
+              </div>
+              <span class="chip" id="selected-zone-code">GH-Z1</span>
+            </div>
+
+            <div class="room-list" id="zone-list" role="radiogroup" aria-label="Επιλογή ζώνης καλλιέργειας θερμοκηπίου">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- Water Tank Visual + Selected Zone Moisture -->
+          <div class="irr-telemetry-grid">
+            <!-- Visual Water Tank Card -->
+            <article class="card tank-card" aria-label="Οπτική ένδειξη δεξαμενής νερού">
+              <div class="sensor-top">
+                <span class="eyebrow">Δεξαμενή Νερού</span>
+                <span class="quality-badge quality-ok" id="tank-quality">
+                  <span class="q-symbol" aria-hidden="true">●</span> Αξιόπιστη
+                </span>
+              </div>
+
+              <div class="tank-layout">
+                <div class="tank-vessel" aria-hidden="true">
+                  <!-- Reserve Threshold Line (20%) -->
+                  <div class="tank-reserve-line" id="tank-reserve-line" style="bottom: 20%">
+                    <span>Εφεδρεία 200 L</span>
+                  </div>
+                  <!-- Current Water Level -->
+                  <div class="tank-water" id="tank-water-fill" style="height: 62%">
+                    <!-- Preview Consumption Slice -->
+                    <div class="tank-preview-slice" id="tank-preview-slice" style="height: 0%"></div>
+                  </div>
+                  <!-- Live Pouring Stream Overlay -->
+                  <div class="tank-flow-overlay is-hidden" id="tank-flow-overlay"></div>
+                </div>
+
+                <div class="tank-stats">
+                  <div class="metric-main" id="tank-vol-l">620 L</div>
+                  <div class="metric-sub" id="tank-vol-pct">62.0% · 0.62 m³</div>
+                  <div class="tank-usable-line" id="tank-usable-line">Διαθέσιμο: 420 L</div>
+                  <dl class="meta-list compact-meta">
+                    <div>
+                      <dt>Χωρητικότητα</dt>
+                      <dd>1 000 L</dd>
+                    </div>
+                    <div>
+                      <dt>Ελάχιστη εφεδρεία</dt>
+                      <dd>200 L (20%)</dd>
+                    </div>
+                    <div>
+                      <dt>Πηγή</dt>
+                      <dd>TANK-W1</dd>
+                    </div>
+                    <div>
+                      <dt>Ώρα μέτρησης</dt>
+                      <dd id="tank-timestamp">Sol 142 · 14:20</dd>
+                    </div>
+                  </dl>
+                </div>
+              </div>
+            </article>
+
+            <!-- Substrate Moisture Card -->
+            <article class="card sensor-card" aria-label="Αισθητήρας υγρασίας υποστρώματος">
+              <div class="sensor-top">
+                <span class="eyebrow">Υγρασία Υποστρώματος</span>
+                <span class="quality-badge quality-ok" id="zone-quality">
+                  <span class="q-symbol" aria-hidden="true">●</span> Αξιόπιστη
+                </span>
+              </div>
+
+              <div class="metric-row">
+                <div class="metric-main" id="zone-moisture-val">42.0%</div>
+                <div class="metric-sub" id="zone-moisture-state">Χαμηλή</div>
+              </div>
+
+              <div class="moisture-bar-wrap" aria-hidden="true">
+                <div class="moisture-bar-track">
+                  <div class="moisture-ideal-band" id="moisture-ideal-band"></div>
+                  <div class="moisture-bar-fill" id="moisture-bar-fill"></div>
+                  <div class="moisture-bar-projected" id="moisture-bar-projected"></div>
+                </div>
+              </div>
+
+              <div class="trend-row">
+                <span class="trend-pill" id="zone-crops-desc">Πορτοκάλια, μήλα &amp; εσπεριδοειδή</span>
+                <span class="safe-range-text" id="zone-ideal-range">Ιδανικό εύρος: 45%–65%</span>
+              </div>
+
+              <dl class="meta-list">
+                <div>
+                  <dt>Πηγή αισθητήρα</dt>
+                  <dd id="zone-sensor-id">SOIL-Z1</dd>
+                </div>
+                <div>
+                  <dt>Ώρα μέτρησης</dt>
+                  <dd id="zone-timestamp">Sol 142 · 14:20</dd>
+                </div>
+                <div>
+                  <dt>Τάση</dt>
+                  <dd id="zone-trend">↘ −1.1% / h</dd>
+                </div>
+              </dl>
+            </article>
+          </div>
+        </section>
+
+        <!-- RIGHT COLUMN: Irrigation Schedule Controls, Reserve Preview & Live Queue -->
+        <section class="column-right" aria-label="Προγραμματισμός άρδευσης και προσομοίωση εκτέλεσης">
+          <!-- Schedule Configuration Card -->
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <span class="eyebrow">Βήμα 2 · Παράμετροι Άρδευσης</span>
+                <h2 id="irr-zone-title">Ζώνη Α — Δέντρα</h2>
+              </div>
+              <span class="status-tag" id="irr-status-tag">Επαρκές απόθεμα</span>
+            </div>
+
+            <!-- Start Time Picker -->
+            <div class="form-section">
+              <div class="form-label-row">
+                <label for="irr-time-input">Ώρα έναρξης (Ώρα Sol)</label>
+                <span class="form-hint" id="irr-time-hint">Προγραμματισμένη έναρξη</span>
+              </div>
+              <div class="time-row">
+                <input type="time" id="irr-time-input" value="14:35" class="time-input" />
+                <div class="preset-chips" role="group" aria-label="Γρήγορες επιλογές ώρας έναρξης">
+                  <button type="button" class="chip-btn" data-time="14:35">Σε 15′</button>
+                  <button type="button" class="chip-btn" data-time="15:20">Σε 1 ώρα</button>
+                  <button type="button" class="chip-btn" data-time="18:00">18:00</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Volume Slider & Presets -->
+            <div class="form-section">
+              <div class="form-label-row">
+                <label for="irr-volume-range">Ποσότητα άρδευσης (L)</label>
+                <span class="form-hint" id="irr-recommended-hint">Συνιστώμενη δόση: 60–120 L</span>
+              </div>
+
+              <div class="volume-control-row">
+                <input
+                  type="range"
+                  id="irr-volume-range"
+                  class="purple-range"
+                  min="10"
+                  max="500"
+                  step="5"
+                  value="80"
+                  aria-label="Επιλογή ποσότητας άρδευσης σε λίτρα"
+                />
+                <div class="input-unit-box">
+                  <input
+                    type="number"
+                    id="irr-volume-input"
+                    min="5"
+                    max="900"
+                    step="5"
+                    value="80"
+                    aria-label="Ακριβής ποσότητα άρδευσης σε λίτρα"
+                  />
+                  <span>L</span>
+                </div>
+              </div>
+
+              <div class="preset-chips volume-presets" role="group" aria-label="Γρήγορες επιλογές ποσότητας νερού">
+                <button type="button" class="chip-btn" data-vol="25">25 L</button>
+                <button type="button" class="chip-btn" data-vol="50">50 L</button>
+                <button type="button" class="chip-btn" data-vol="80">80 L</button>
+                <button type="button" class="chip-btn" data-vol="120">120 L</button>
+                <button type="button" class="chip-btn" data-vol="200">200 L</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Impact Preview Card -->
+          <div class="card impact-card" aria-label="Προεπισκόπηση επίπτωσης στο απόθεμα νερού">
+            <div class="card-head">
+              <div>
+                <span class="eyebrow">Βήμα 3 · Προεπισκόπηση Αποθέματος (Εκτιμώμενη)</span>
+                <h3>Επίπτωση στη Δεξαμενή &amp; Υγρασία</h3>
+              </div>
+              <span class="delta-badge neutral" id="irr-delta-badge">−80 L (−8.0%)</span>
+            </div>
+
+            <div class="impact-metrics">
+              <div class="impact-box">
+                <span class="impact-label">Τρέχουσα στάθμη</span>
+                <strong class="impact-value" id="irr-cur-tank">620 L</strong>
+                <span class="impact-note" id="irr-cur-moisture">Υγρασία: 42.0%</span>
+              </div>
+              <div class="impact-arrow" aria-hidden="true">→</div>
+              <div class="impact-box is-highlight">
+                <span class="impact-label">Νέα εκτιμώμενη στάθμη</span>
+                <strong class="impact-value" id="irr-new-tank">540 L</strong>
+                <span class="impact-note" id="irr-new-moisture">Εκτ. υγρασία: 56.4%</span>
+              </div>
+            </div>
+
+            <div class="reserve-margin-bar" id="reserve-margin-note">
+              Περιθώριο πάνω από ελάχιστη εφεδρεία (200 L): <strong>340 L</strong>
+            </div>
+
+            <details class="model-details">
+              <summary>Μοντέλο υδατικού ισοζυγίου &amp; παραδοχές (χωρίς διπλομέτρηση)</summary>
+              <div class="model-content">
+                <p class="formula-line"><strong>Διαθέσιμο απόθεμα:</strong> <code>Vδιαθ = max(0, Vτρέχ − Vmin)</code></p>
+                <p class="formula-line"><strong>Στιγμιαία στάθμη μετά:</strong> <code>Vνέο = Vτρέχ − Vάρδ</code> (με όρο ασφαλείας <code>Vνέο ≥ Vmin</code>)</p>
+                <p id="irr-model-calc-line" class="model-calc"></p>
+                <p class="model-assumptions">
+                  <strong>Κανόνας μη διπλομέτρησης:</strong> Το σύστημα ανακύκλωσης (απόδοση r = 70%) επιστρέφει νερό στη δεξαμενή σε μεταγενέστερο κύκλο.
+                  Το αναμενόμενο ανακυκλωμένο νερό <em>δεν</em> αφαιρείται εκ των προτέρων από τη στιγμιαία απαίτηση άρδευσης κατά τον έλεγχο επάρκειας.
+                </p>
+              </div>
+            </details>
+
+            <div class="action-row">
+              <button type="button" class="btn btn-ghost" id="irr-btn-reset">Επαναφορά</button>
+              <button type="button" class="btn btn-primary" id="irr-btn-schedule">Επιβεβαίωση &amp; Αποθήκευση</button>
+            </div>
+          </div>
+
+          <!-- Saved Schedules & Live Execution Panel -->
+          <section class="card schedule-card" aria-label="Αποθηκευμένα προγράμματα άρδευσης">
+            <div class="card-head">
+              <div>
+                <span class="eyebrow">Βήμα 4 · Προγράμματα &amp; Προσομοίωση</span>
+                <h3>Ενεργά Προγράμματα Άρδευσης</h3>
+              </div>
+              <span class="chip" id="schedule-count-chip">0 προγράμματα</span>
+            </div>
+
+            <div id="schedule-list" class="schedule-list">
+              <!-- Populated by JS -->
+            </div>
+          </section>
+        </section>
+      </div>
+
+      <!-- Discreet Fault Simulation Bar for Function B -->
+      <footer class="sim-bar" aria-label="Εργαλεία προσομοίωσης σφαλμάτων άρδευσης">
+        <span class="sim-title">Προσομοίωση Σφαλμάτων Άρδευσης (Δοκιμή Σεναρίων):</span>
+        <div class="sim-controls">
+          <label class="toggle-chip">
+            <input type="checkbox" id="sim-low-tank" />
+            <span>Χαμηλή στάθμη δεξαμενής (230 L)</span>
+          </label>
+          <label class="toggle-chip">
+            <input type="checkbox" id="sim-valve-fault" />
+            <span>Αποτυχία βαλβίδας κατά την εκτέλεση</span>
+          </label>
+          <button type="button" class="btn btn-ghost btn-xs" id="sim-refill-tank">Αναπλήρωση δεξαμενής (620 L)</button>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Critical Command Confirmation Modal -->
+  <div class="modal-backdrop is-hidden" id="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-card">
+      <div class="modal-head">
+        <span class="eyebrow">Επιβεβαίωση Κρίσιμης Εντολής</span>
+        <h2 id="modal-title">Μεταβολή επιθυμητής θερμοκρασίας</h2>
+      </div>
+
+      <div class="modal-summary" id="modal-summary">
+        <!-- Populated dynamically -->
+      </div>
+
+      <p class="modal-warning">
+        Η μεταβολή της θερμικής ρύθμισης επηρεάζει άμεσα τη ζήτηση ηλεκτρικής ισχύος του συστήματος υποστήριξης ζωής.
+        Βεβαιωθείτε ότι η εκτιμώμενη επίπτωση είναι αποδεκτή πριν από την εκτέλεση.
+      </p>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="modal-cancel">Ακύρωση</button>
+        <button type="button" class="btn btn-primary" id="modal-confirm">Επιβεβαίωση Εντολής</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
