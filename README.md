@@ -12,7 +12,8 @@
 Η πλήρης τελική αναφορά της Εργασίας 1 βρίσκεται στον φάκελο `Documentation/`:
 
 - **Κεντρικό Έγγραφο Αναφοράς (Markdown):** [`Documentation/ergasia1_report.md`](Documentation/ergasia1_report.md)
-- **Έκδοση Έτοιμη για Εξαγωγή σε PDF (Print-Ready HTML):** [`Documentation/ergasia1_report.html`](Documentation/ergasia1_report.html) *(άνοιγμα στον browser → `Ctrl + P` → Αποθήκευση ως PDF με ενεργά τα «Γραφικά φόντου»)*
+- **Κεντρικό Έγγραφο Αναφοράς (PDF):** [`Documentation/Smart Mars Colony — Εργασία 1 _ Αναφορά & Εγχειρίδια Χρήσης.pdf`](Documentation/ergasia1_report.md)
+
 
 Περιλαμβάνει:
 - Στοιχεία ομάδας (εξώφυλλο / 1η σελίδα)
@@ -49,14 +50,13 @@
 smart-mars-colony-p23028/
 ├── Documentation/
 │   ├── ergasia1_2026_2027.pdf   # Εκφώνηση εργασίας
-│   ├── ergasia1_report.md       # Τελική αναφορά: Σενάρια, HTA, Αντιστοίχιση, Εγχειρίδια & Αποτίμηση
-│   ├── ergasia1_report.html     # Print-ready HTML έκδοση για άμεση εξαγωγή σε PDF (με Mermaid HTA)
+│   ├── ergasia1_report.md       # Τελική αναφορά: Σενάρια, HTA, Αντιστοίχιση, Εγχειρίδια & Αποτίμηση σε markdown
+│   ├── Smart Mars Colony - Εργασια 1 _ Αναφορα & Εγχειριδια Χρησης.pdf   # Τελικη αναφορα εργασειας σε PDF
 │   └── tasks_1.md               # Πλάνο προδιαγραφών & υλοποίησης
 ├── prototypes/
 │   ├── index.html               # Κύρια σελίδα διαδραστικού πρωτοτύπου
 │   ├── styles.css               # Minimal dark-purple στυλ & προσβασιμότητα
-│   └── app.js                   # Λογική φυσικών μοντέλων, ελέγχων & προσομοιώσεων
-├── submission/                  # Φάκελος συγκέντρωσης τελικού παραδοτέου (ergasia1.zip)
+│   └── app.js                   # Λογική φυσικών μοντέλων και ελεγχων
 ├── LICENSE
 └── README.md
 ```
