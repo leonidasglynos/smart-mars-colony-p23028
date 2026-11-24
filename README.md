@@ -11,7 +11,8 @@
 
 Η πλήρης τελική αναφορά της Εργασίας 1 βρίσκεται στον φάκελο `Documentation/`:
 
-- **Κεντρικό Έγγραφο Αναφοράς:** [`Documentation/ergasia1_report.md`](Documentation/ergasia1_report.md)
+- **Κεντρικό Έγγραφο Αναφοράς (Markdown):** [`Documentation/ergasia1_report.md`](Documentation/ergasia1_report.md)
+- **Έκδοση Έτοιμη για Εξαγωγή σε PDF (Print-Ready HTML):** [`Documentation/ergasia1_report.html`](Documentation/ergasia1_report.html) *(άνοιγμα στον browser → `Ctrl + P` → Αποθήκευση ως PDF με ενεργά τα «Γραφικά φόντου»)*
 
 Περιλαμβάνει:
 - Στοιχεία ομάδας (εξώφυλλο / 1η σελίδα)
@@ -49,6 +50,7 @@ smart-mars-colony-p23028/
 ├── Documentation/
 │   ├── ergasia1_2026_2027.pdf   # Εκφώνηση εργασίας
 │   ├── ergasia1_report.md       # Τελική αναφορά: Σενάρια, HTA, Αντιστοίχιση, Εγχειρίδια & Αποτίμηση
+│   ├── ergasia1_report.html     # Print-ready HTML έκδοση για άμεση εξαγωγή σε PDF (με Mermaid HTA)
 │   └── tasks_1.md               # Πλάνο προδιαγραφών & υλοποίησης
 ├── prototypes/
 │   ├── index.html               # Κύρια σελίδα διαδραστικού πρωτοτύπου
